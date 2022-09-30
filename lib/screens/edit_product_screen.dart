@@ -16,8 +16,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlController = TextEditingController();
   final _imageUrlFocusNode = FocusNode();
   final _form = GlobalKey<FormState>();
-  var _editedProduct =
-      Product(id: '', title: '', description: '', price: 0, imageUrl: '');
+  var _editedProduct = Product(
+    id: 'null',
+    title: '',
+    price: 0,
+    description: '',
+    imageUrl: '',
+  );
   var _initValues = {
     'title': '',
     'description': '',
@@ -48,7 +53,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     if (_isInit) {
-      final productId = ModalRoute.of(context)?.settings.arguments as String;
+      final routeData = ModalRoute.of(context);
+      var productId;
+      if (routeData?.settings.arguments != null) {
+        productId = routeData?.settings.arguments as String;
+      }
       if (productId != null) {
         _editedProduct = Provider.of<ProductsProvider>(context, listen: false)
             .findById(productId);
@@ -85,10 +94,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _form.currentState!.save();
-    if (_editedProduct.id != null) {
+    print('_editProduct');
+    print((_editedProduct).toString());
+    if (_editedProduct.id != 'null') {
+      print('_editProduct');
       Provider.of<ProductsProvider>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
     } else {
+      print('_editProduct 123');
       Provider.of<ProductsProvider>(context, listen: false)
           .addProduct(_editedProduct);
     }
@@ -177,7 +190,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     if (value!.isEmpty) {
                       return 'Enter description';
                     }
-                    if (value.length > 10) {
+                    if (value.length < 10) {
                       return 'Should be atleast 10 characters long';
                     }
                     return null;
@@ -226,8 +239,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           if (value!.isEmpty) {
                             return 'Enter image url';
                           }
-                          if (value.startsWith('http') ||
-                              value.startsWith('https')) {
+                          if (!value.startsWith('http') ||
+                              !value.startsWith('https')) {
                             return 'Enter a valid url';
                           }
                           if (!value.endsWith('.png') &&
